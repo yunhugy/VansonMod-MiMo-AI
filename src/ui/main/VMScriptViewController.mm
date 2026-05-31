@@ -11,7 +11,15 @@
 
 #define TR(key) ([[VMLocalization shared] localizedString:key])
 
-@class VMAIChatPanel;
+#pragma mark - VMAIChatPanel (forward declaration)
+
+@class VMAIManager;
+
+@interface VMAIChatPanel : UIViewController <UITextFieldDelegate>
+@property (nonatomic, copy) NSString *initialPrompt;
+@property (nonatomic, copy) void (^didInsertCode)(NSString *code);
+- (instancetype)initWithPrompt:(NSString *)prompt;
+@end
 
 @interface VMScriptViewController () <UITextViewDelegate>
 
@@ -686,6 +694,8 @@
     };
     UINavigationController *nav =
         [[UINavigationController alloc] initWithRootViewController:panel];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability-new"
     if (@available(iOS 15.0, *)) {
         if (nav.sheetPresentationController) {
             nav.sheetPresentationController.detents = @[
@@ -695,6 +705,7 @@
             nav.sheetPresentationController.prefersGrabberVisible = YES;
         }
     }
+#pragma clang diagnostic pop
     [self presentViewController:nav animated:YES completion:nil];
 }
 
@@ -704,12 +715,7 @@
 
 @end
 
-#pragma mark - VMAIChatPanel
-
-@interface VMAIChatPanel : UIViewController <UITextFieldDelegate>
-@property (nonatomic, copy) NSString *initialPrompt;
-@property (nonatomic, copy) void (^didInsertCode)(NSString *code);
-@end
+#pragma mark - VMAIChatPanel Implementation
 
 @implementation VMAIChatPanel {
     UITextView *_chatView;
