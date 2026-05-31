@@ -44,9 +44,9 @@ jobs:
         env:
           THEOS: /Users/runner/theos
         run: |
+          brew install ldid fakeroot
           export PATH="/opt/homebrew/bin:$THEOS/bin:$PATH"
-          which ldid
-          which make
+          which ldid && which make
           make clean package FINALPACKAGE=1 DEBUG=0 2>&1
 
       - name: Find TIPA
