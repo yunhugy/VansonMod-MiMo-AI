@@ -224,12 +224,15 @@
   UIStackView *toolStack = [[UIStackView alloc] init];
   toolStack.axis = UILayoutConstraintAxisHorizontal;
   toolStack.distribution = UIStackViewDistributionFillEqually;
-  toolStack.spacing = 15;
+  toolStack.spacing = 6;
   toolStack.translatesAutoresizingMaskIntoConstraints = NO;
   [self.view addSubview:toolStack];
 
   UIButton *btnShort = [UIButton buttonWithType:UIButtonTypeSystem];
-  [btnShort setTitle:TR(@"Script_Btn_Shortcut") forState:UIControlStateNormal];
+  [btnShort setTitle:@"Shortcut" forState:UIControlStateNormal];
+  [btnShort.titleLabel setFont:[UIFont systemFontOfSize:13]];
+  btnShort.titleLabel.adjustsFontSizeToFitWidth = YES;
+  btnShort.titleLabel.minimumScaleFactor = 0.7;
   [btnShort setBackgroundColor:[UIColor tertiarySystemGroupedBackgroundColor]];
   btnShort.layer.cornerRadius = 8;
   [btnShort addTarget:self
@@ -237,15 +240,30 @@
       forControlEvents:UIControlEventTouchUpInside];
 
   UIButton *btnEx = [UIButton buttonWithType:UIButtonTypeSystem];
-  [btnEx setTitle:TR(@"Script_Btn_Template") forState:UIControlStateNormal];
+  [btnEx setTitle:@"Template" forState:UIControlStateNormal];
+  [btnEx.titleLabel setFont:[UIFont systemFontOfSize:13]];
+  btnEx.titleLabel.adjustsFontSizeToFitWidth = YES;
+  btnEx.titleLabel.minimumScaleFactor = 0.7;
   [btnEx setBackgroundColor:[UIColor tertiarySystemGroupedBackgroundColor]];
   btnEx.layer.cornerRadius = 8;
   [btnEx addTarget:self
                 action:@selector(onExampleAction)
       forControlEvents:UIControlEventTouchUpInside];
 
+  UIButton *btnAI = [UIButton buttonWithType:UIButtonTypeSystem];
+  [btnAI setTitle:@"✨AI" forState:UIControlStateNormal];
+  [btnAI.titleLabel setFont:[UIFont systemFontOfSize:13]];
+  [btnAI setTitleColor:[UIColor systemPurpleColor]
+              forState:UIControlStateNormal];
+  [btnAI setBackgroundColor:[UIColor tertiarySystemGroupedBackgroundColor]];
+  btnAI.layer.cornerRadius = 8;
+  [btnAI addTarget:self
+             action:@selector(onAIAction)
+   forControlEvents:UIControlEventTouchUpInside];
+
   self.btnRun = [UIButton buttonWithType:UIButtonTypeSystem];
-  [self.btnRun setTitle:TR(@"Script_Btn_Run") forState:UIControlStateNormal];
+  [self.btnRun setTitle:@"Run" forState:UIControlStateNormal];
+  [self.btnRun.titleLabel setFont:[UIFont systemFontOfSize:13]];
   [self.btnRun setTitleColor:[UIColor systemBlueColor]
                     forState:UIControlStateNormal];
   [self.btnRun
@@ -256,7 +274,8 @@
         forControlEvents:UIControlEventTouchUpInside];
 
   self.btnSave = [UIButton buttonWithType:UIButtonTypeSystem];
-  [self.btnSave setTitle:TR(@"Script_Btn_Save") forState:UIControlStateNormal];
+  [self.btnSave setTitle:@"Save" forState:UIControlStateNormal];
+  [self.btnSave.titleLabel setFont:[UIFont systemFontOfSize:13]];
   [self.btnSave setTitleColor:[UIColor systemGreenColor]
                      forState:UIControlStateNormal];
   [self.btnSave
@@ -265,16 +284,6 @@
   [self.btnSave addTarget:self
                    action:@selector(saveScript)
          forControlEvents:UIControlEventTouchUpInside];
-
-  UIButton *btnAI = [UIButton buttonWithType:UIButtonTypeSystem];
-  [btnAI setTitle:@"✨AI" forState:UIControlStateNormal];
-  [btnAI setTitleColor:[UIColor systemPurpleColor]
-              forState:UIControlStateNormal];
-  [btnAI setBackgroundColor:[UIColor tertiarySystemGroupedBackgroundColor]];
-  btnAI.layer.cornerRadius = 8;
-  [btnAI addTarget:self
-             action:@selector(onAIAction)
-   forControlEvents:UIControlEventTouchUpInside];
 
   [toolStack addArrangedSubview:btnShort];
   [toolStack addArrangedSubview:btnEx];
