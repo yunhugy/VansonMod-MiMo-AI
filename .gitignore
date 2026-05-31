@@ -1,0 +1,12 @@
+.theos/
+packages/
+release/
+Payload/
+.DS_Store
+*.deb
+*.tipa
+*.ipa
+*.bak
+*.tmp
+*.log
+Github-main/.git/
