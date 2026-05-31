@@ -251,11 +251,11 @@
       forControlEvents:UIControlEventTouchUpInside];
 
   UIButton *btnAI = [UIButton buttonWithType:UIButtonTypeSystem];
-  [btnAI setTitle:@"✨AI" forState:UIControlStateNormal];
-  [btnAI.titleLabel setFont:[UIFont systemFontOfSize:13]];
-  [btnAI setTitleColor:[UIColor systemPurpleColor]
+  [btnAI setTitle:@"AI" forState:UIControlStateNormal];
+  [btnAI.titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
+  [btnAI setTitleColor:[UIColor whiteColor]
               forState:UIControlStateNormal];
-  [btnAI setBackgroundColor:[UIColor tertiarySystemGroupedBackgroundColor]];
+  [btnAI setBackgroundColor:[UIColor systemPurpleColor]];
   btnAI.layer.cornerRadius = 8;
   [btnAI addTarget:self
              action:@selector(onAIAction)
@@ -299,7 +299,7 @@
   self.consoleView.layer.cornerRadius = 8;
   self.consoleView.translatesAutoresizingMaskIntoConstraints = NO;
   self.consoleView.text =
-      [NSString stringWithFormat:@"> %@", TR(@"Script_Console_Ready")];
+      [NSString stringWithFormat:@"> %@ [AI Edition v2.9.1]", TR(@"Script_Console_Ready")];
   [self.view addSubview:self.consoleView];
 
   [NSLayoutConstraint activateConstraints:@[
