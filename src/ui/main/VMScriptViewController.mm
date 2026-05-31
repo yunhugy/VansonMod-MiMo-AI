@@ -299,7 +299,7 @@
   self.consoleView.layer.cornerRadius = 8;
   self.consoleView.translatesAutoresizingMaskIntoConstraints = NO;
   self.consoleView.text =
-      [NSString stringWithFormat:@"> %@ [AI Edition v2.9.1]", TR(@"Script_Console_Ready")];
+      [NSString stringWithFormat:@"> %@ [AI Edition 03cc680]", TR(@"Script_Console_Ready")];
   [self.view addSubview:self.consoleView];
 
   [NSLayoutConstraint activateConstraints:@[
