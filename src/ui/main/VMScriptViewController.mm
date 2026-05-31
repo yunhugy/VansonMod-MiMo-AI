@@ -43,6 +43,28 @@
       [UIColor systemGroupedBackgroundColor]; 
   [self setupUI]; 
 
+  // Floating AI button
+  UIButton *fabAI = [UIButton buttonWithType:UIButtonTypeSystem];
+  [fabAI setTitle:@"AI" forState:UIControlStateNormal];
+  [fabAI.titleLabel setFont:[UIFont boldSystemFontOfSize:16]];
+  [fabAI setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+  [fabAI setBackgroundColor:[UIColor systemPurpleColor]];
+  fabAI.layer.cornerRadius = 25;
+  fabAI.layer.shadowColor = [UIColor blackColor].CGColor;
+  fabAI.layer.shadowOffset = CGSizeMake(0, 2);
+  fabAI.layer.shadowOpacity = 0.4;
+  fabAI.layer.shadowRadius = 4;
+  fabAI.translatesAutoresizingMaskIntoConstraints = NO;
+  [fabAI addTarget:self action:@selector(onAIAction) forControlEvents:UIControlEventTouchUpInside];
+  [self.view addSubview:fabAI];
+  UILayoutGuide *safeG = self.view.safeAreaLayoutGuide;
+  [NSLayoutConstraint activateConstraints:@[
+    [fabAI.trailingAnchor constraintEqualToAnchor:safeG.trailingAnchor constant:-16],
+    [fabAI.bottomAnchor constraintEqualToAnchor:safeG.bottomAnchor constant:-16],
+    [fabAI.widthAnchor constraintEqualToConstant:50],
+    [fabAI.heightAnchor constraintEqualToConstant:50],
+  ]];
+
   [self setupNavigationTitle];
 
   self.navigationItem.rightBarButtonItem = nil;
@@ -250,17 +272,6 @@
                 action:@selector(onExampleAction)
       forControlEvents:UIControlEventTouchUpInside];
 
-  UIButton *btnAI = [UIButton buttonWithType:UIButtonTypeSystem];
-  [btnAI setTitle:@"AI" forState:UIControlStateNormal];
-  [btnAI.titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
-  [btnAI setTitleColor:[UIColor whiteColor]
-              forState:UIControlStateNormal];
-  [btnAI setBackgroundColor:[UIColor systemPurpleColor]];
-  btnAI.layer.cornerRadius = 8;
-  [btnAI addTarget:self
-             action:@selector(onAIAction)
-   forControlEvents:UIControlEventTouchUpInside];
-
   self.btnRun = [UIButton buttonWithType:UIButtonTypeSystem];
   [self.btnRun setTitle:@"Run" forState:UIControlStateNormal];
   [self.btnRun.titleLabel setFont:[UIFont systemFontOfSize:13]];
@@ -287,7 +298,6 @@
 
   [toolStack addArrangedSubview:btnShort];
   [toolStack addArrangedSubview:btnEx];
-  [toolStack addArrangedSubview:btnAI];
   [toolStack addArrangedSubview:self.btnRun];
   [toolStack addArrangedSubview:self.btnSave];
 
