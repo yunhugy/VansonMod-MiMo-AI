@@ -11,6 +11,8 @@
 
 #define TR(key) ([[VMLocalization shared] localizedString:key])
 
+@class VMAIChatPanel;
+
 @interface VMScriptViewController () <UITextViewDelegate>
 
 @property(nonatomic, strong) UIView *headerView;
@@ -603,7 +605,11 @@
         return;
     }
 
-    NSString *selected = self.editorView.selectedText ?: @"";
+    NSString *selected = @"";
+    NSRange selRange = self.editorView.selectedRange;
+    if (selRange.length > 0) {
+        selected = [self.editorView.text substringWithRange:selRange];
+    }
     BOOL hasSelection = selected.length > 0;
 
     UIAlertController *alert = [UIAlertController
@@ -709,7 +715,7 @@
     UITextView *_chatView;
     UITextField *_inputField;
     UIButton *_sendBtn;
-    UIButton *_insertBtn;
+    UIBarButtonItem *_insertBtn;
     NSMutableString *_lastResponse;
     BOOL _isStreaming;
 }
