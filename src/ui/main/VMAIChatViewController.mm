@@ -106,7 +106,7 @@
   NSDictionary *info = notif.userInfo;
   CGRect frame = [info[UIKeyboardFrameEndUserInfoKey] CGRectValue];
   NSTimeInterval duration = [info[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-  UIViewAnimationCurve curve = [info[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+  UIViewAnimationCurve curve = (UIViewAnimationCurve)[info[UIKeyboardAnimationCurveUserInfoKey] integerValue];
 
   // Convert keyboard frame to view coordinates
   CGRect kbFrame = [self.view convertRect:frame fromView:nil];
@@ -122,7 +122,7 @@
 - (void)keyboardWillHide:(NSNotification *)notif {
   NSDictionary *info = notif.userInfo;
   NSTimeInterval duration = [info[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-  UIViewAnimationCurve curve = [info[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+  UIViewAnimationCurve curve = (UIViewAnimationCurve)[info[UIKeyboardAnimationCurveUserInfoKey] integerValue];
 
   _barBottomConstraint.constant = 0;
 
