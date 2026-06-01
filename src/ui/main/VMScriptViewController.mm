@@ -43,33 +43,15 @@
       [UIColor systemGroupedBackgroundColor]; 
   [self setupUI]; 
 
-  // Floating AI button - frame based for reliability
-  dispatch_async(dispatch_get_main_queue(), ^{
-    UIButton *fabAI = [UIButton buttonWithType:UIButtonTypeSystem];
-    [fabAI setTitle:@"AI" forState:UIControlStateNormal];
-    [fabAI.titleLabel setFont:[UIFont boldSystemFontOfSize:18]];
-    [fabAI setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [fabAI setBackgroundColor:[UIColor systemPurpleColor]];
-    fabAI.frame = CGRectMake(self.view.bounds.size.width - 66,
-                             self.view.bounds.size.height - 120,
-                             50, 50);
-    fabAI.layer.cornerRadius = 25;
-    fabAI.layer.shadowColor = [UIColor blackColor].CGColor;
-    fabAI.layer.shadowOffset = CGSizeMake(0, 2);
-    fabAI.layer.shadowOpacity = 0.4;
-    fabAI.layer.shadowRadius = 4;
-    fabAI.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
-    [fabAI addTarget:self action:@selector(onAIAction) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:fabAI];
-    [self.view bringSubviewToFront:fabAI];
-    NSLog(@"[VMScriptVC] FAB added at (%.0f, %.0f) size=(%.0f, %.0f)",
-          fabAI.frame.origin.x, fabAI.frame.origin.y,
-          fabAI.frame.size.width, fabAI.frame.size.height);
-  });
+  // AI button in navigation bar - guaranteed visible
+  self.navigationItem.rightBarButtonItem = 
+      [[UIBarButtonItem alloc] initWithTitle:@"✨AI"
+                                       style:UIBarButtonItemStyleDone
+                                      target:self
+                                      action:@selector(onAIAction)];
+  self.navigationItem.rightBarButtonItem.tintColor = [UIColor systemPurpleColor];
 
   [self setupNavigationTitle];
-
-  self.navigationItem.rightBarButtonItem = nil;
 
   self.editorView.text = self.scriptModel.scriptContent;
 
