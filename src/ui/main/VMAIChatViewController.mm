@@ -1,5 +1,5 @@
 #import <UIKit/UIKit.h>
-#import "VMAIManager.h"
+#import "../../utils/managers/VMAIManager.h"
 
 @interface VMAIChatViewController : UIViewController <UITextFieldDelegate>
 @end
