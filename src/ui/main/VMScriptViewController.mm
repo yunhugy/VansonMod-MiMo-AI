@@ -45,11 +45,11 @@
 
   // AI button in navigation bar - guaranteed visible
   self.navigationItem.rightBarButtonItem = 
-      [[UIBarButtonItem alloc] initWithTitle:@"✨AI"
+      [[UIBarButtonItem alloc] initWithTitle:@"AI聊"
                                        style:UIBarButtonItemStyleDone
                                       target:self
                                       action:@selector(onAIAction)];
-  self.navigationItem.rightBarButtonItem.tintColor = [UIColor systemPurpleColor];
+  self.navigationItem.rightBarButtonItem.tintColor = [UIColor systemRedColor];
 
   [self setupNavigationTitle];
 
@@ -293,7 +293,7 @@
   self.consoleView.layer.cornerRadius = 8;
   self.consoleView.translatesAutoresizingMaskIntoConstraints = NO;
   self.consoleView.text =
-      [NSString stringWithFormat:@"> %@ [v3.0.0-MiMo-AI ✅]", TR(@"Script_Console_Ready")];
+      [NSString stringWithFormat:@"> %@ [VMod AI 3.1.0]", TR(@"Script_Console_Ready")];
   [self.view addSubview:self.consoleView];
 
   [NSLayoutConstraint activateConstraints:@[

@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>VansonMod</string>
+    <string>VansonModAI</string>
     <key>CFBundleDisplayName</key>
-    <string>VansonMod</string>
+    <string>VMod AI</string>
     <key>CFBundleExecutable</key>
     <string>VansonMod</string>
     <key>CFBundleIdentifier</key>
-    <string>com.vanson.modifier</string>
+    <string>com.vanson.modifier.ai</string>
     <key>CFBundleVersion</key>
-    <string>3.0.0</string>
+    <string>3.1.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>3.0.0-mimo</string>
+    <string>3.1.0-AI</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
