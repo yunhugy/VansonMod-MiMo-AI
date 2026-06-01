@@ -141,7 +141,7 @@ didCompleteWithError:(NSError *)error {
 
 - (void)reloadConfig {
     NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
-    self.baseURL    = [d objectForKey:kAIBaseURL] ?: @"https://api.xiaomi.com/v1";
+    self.baseURL    = [d objectForKey:kAIBaseURL] ?: @"https://token-plan-sgp.xiaomimimo.com/v1";
     self.apiKey     = [d objectForKey:kAIApiKey]  ?: @"";
     self.model      = [d objectForKey:kAIModel]   ?: @"MiMo-V2-Flash";
     self.temperature = [d objectForKey:kAITemp] ? [d doubleForKey:kAITemp] : 0.7;

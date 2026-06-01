@@ -264,7 +264,7 @@
 
   // AI Settings
   VMAIManager *ai = [VMAIManager shared];
-  self.aiBaseURLField = [self createTextField:@"https://api.xiaomi.com/v1"];
+  self.aiBaseURLField = [self createTextField:@"https://token-plan-sgp.xiaomimimo.com/v1"];
   self.aiBaseURLField.text = ai.baseURL;
   self.aiBaseURLField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   self.aiBaseURLField.autocorrectionType = UITextAutocorrectionTypeNo;
