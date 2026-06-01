@@ -1,5 +1,9 @@
 #import <UIKit/UIKit.h>
 #import "../../utils/managers/VMAIManager.h"
+#import "../../utils/managers/VMScriptManager.h"
+#import "include/VMMemoryEngine.h"
+#import "include/VMPointerManager.h"
+#import <objc/runtime.h>
 
 @interface VMAIChatViewController : UIViewController <UITextFieldDelegate>
 @end
@@ -8,6 +12,8 @@
   UITextView *_chatView;
   UITextField *_inputField;
   UIButton *_sendButton;
+  UIView *_inputBar;
+  NSLayoutConstraint *_barBottomConstraint;
   NSMutableArray<NSDictionary *> *_messages;
 }
 
@@ -22,6 +28,12 @@
                                                     target:self
                                                     action:@selector(closeSelf)];
 
+  // Clear chat button
+  self.navigationItem.rightBarButtonItem =
+      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash
+                                                    target:self
+                                                    action:@selector(clearChat)];
+
   _chatView = [[UITextView alloc] initWithFrame:CGRectZero];
   _chatView.translatesAutoresizingMaskIntoConstraints = NO;
   _chatView.editable = NO;
@@ -31,9 +43,10 @@
   _chatView.text = @"MiMo AI 已就绪\n";
   [self.view addSubview:_chatView];
 
-  UIView *bar = [[UIView alloc] initWithFrame:CGRectZero];
-  bar.translatesAutoresizingMaskIntoConstraints = NO;
-  [self.view addSubview:bar];
+  _inputBar = [[UIView alloc] initWithFrame:CGRectZero];
+  _inputBar.translatesAutoresizingMaskIntoConstraints = NO;
+  _inputBar.backgroundColor = [UIColor tertiarySystemBackgroundColor];
+  [self.view addSubview:_inputBar];
 
   _inputField = [[UITextField alloc] initWithFrame:CGRectZero];
   _inputField.translatesAutoresizingMaskIntoConstraints = NO;
@@ -41,38 +54,90 @@
   _inputField.borderStyle = UITextBorderStyleRoundedRect;
   _inputField.returnKeyType = UIReturnKeySend;
   _inputField.delegate = self;
-  [bar addSubview:_inputField];
+  [_inputBar addSubview:_inputField];
 
   _sendButton = [UIButton buttonWithType:UIButtonTypeSystem];
   _sendButton.translatesAutoresizingMaskIntoConstraints = NO;
   [_sendButton setTitle:@"Send" forState:UIControlStateNormal];
   [_sendButton addTarget:self action:@selector(sendMessage) forControlEvents:UIControlEventTouchUpInside];
-  [bar addSubview:_sendButton];
+  [_inputBar addSubview:_sendButton];
 
   UILayoutGuide *g = self.view.safeAreaLayoutGuide;
+
+  // Bar bottom constraint - will animate with keyboard
+  _barBottomConstraint = [_inputBar.bottomAnchor constraintEqualToAnchor:g.bottomAnchor constant:0];
+
   [NSLayoutConstraint activateConstraints:@[
     [_chatView.topAnchor constraintEqualToAnchor:g.topAnchor constant:12],
     [_chatView.leadingAnchor constraintEqualToAnchor:g.leadingAnchor constant:12],
     [_chatView.trailingAnchor constraintEqualToAnchor:g.trailingAnchor constant:-12],
-    [_chatView.bottomAnchor constraintEqualToAnchor:bar.topAnchor constant:-10],
+    [_chatView.bottomAnchor constraintEqualToAnchor:_inputBar.topAnchor constant:-8],
 
-    [bar.leadingAnchor constraintEqualToAnchor:g.leadingAnchor constant:12],
-    [bar.trailingAnchor constraintEqualToAnchor:g.trailingAnchor constant:-12],
-    [bar.bottomAnchor constraintEqualToAnchor:g.bottomAnchor constant:-12],
-    [bar.heightAnchor constraintEqualToConstant:44],
+    [_inputBar.leadingAnchor constraintEqualToAnchor:g.leadingAnchor],
+    [_inputBar.trailingAnchor constraintEqualToAnchor:g.trailingAnchor],
+    _barBottomConstraint,
+    [_inputBar.heightAnchor constraintEqualToConstant:50],
 
-    [_inputField.leadingAnchor constraintEqualToAnchor:bar.leadingAnchor],
-    [_inputField.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
+    [_inputField.leadingAnchor constraintEqualToAnchor:_inputBar.leadingAnchor constant:12],
+    [_inputField.centerYAnchor constraintEqualToAnchor:_inputBar.centerYAnchor],
     [_inputField.trailingAnchor constraintEqualToAnchor:_sendButton.leadingAnchor constant:-8],
 
-    [_sendButton.trailingAnchor constraintEqualToAnchor:bar.trailingAnchor],
-    [_sendButton.centerYAnchor constraintEqualToAnchor:bar.centerYAnchor],
+    [_sendButton.trailingAnchor constraintEqualToAnchor:_inputBar.trailingAnchor constant:-12],
+    [_sendButton.centerYAnchor constraintEqualToAnchor:_inputBar.centerYAnchor],
     [_sendButton.widthAnchor constraintEqualToConstant:60],
   ]];
+
+  // Keyboard notifications
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardWillShow:)
+                                               name:UIKeyboardWillShowNotification
+                                             object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(keyboardWillHide:)
+                                               name:UIKeyboardWillHideNotification
+                                             object:nil];
+}
+
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)keyboardWillShow:(NSNotification *)notif {
+  NSDictionary *info = notif.userInfo;
+  CGRect frame = [info[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  NSTimeInterval duration = [info[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+  UIViewAnimationCurve curve = [info[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+
+  // Convert keyboard frame to view coordinates
+  CGRect kbFrame = [self.view convertRect:frame fromView:nil];
+  CGFloat overlap = self.view.bounds.size.height - kbFrame.origin.y;
+
+  _barBottomConstraint.constant = -overlap;
+
+  [UIView animateWithDuration:duration delay:0 options:(curve << 16) animations:^{
+    [self.view layoutIfNeeded];
+  } completion:nil];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notif {
+  NSDictionary *info = notif.userInfo;
+  NSTimeInterval duration = [info[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+  UIViewAnimationCurve curve = [info[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+
+  _barBottomConstraint.constant = 0;
+
+  [UIView animateWithDuration:duration delay:0 options:(curve << 16) animations:^{
+    [self.view layoutIfNeeded];
+  } completion:nil];
 }
 
 - (void)closeSelf {
   [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)clearChat {
+  _messages = [NSMutableArray array];
+  _chatView.text = @"MiMo AI 已就绪\n";
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -88,57 +153,78 @@
   }
 }
 
+#pragma mark - Process Context
+
+- (NSString *)currentProcessContext {
+  VMMemoryEngine *eng = [VMMemoryEngine shared];
+  NSMutableString *ctx = [NSMutableString string];
+
+  NSString *procName = eng.currentProcessName;
+  pid_t pid = eng.targetPid;
+  NSUInteger resultCount = eng.resultCount;
+
+  if (procName.length > 0 && pid > 0) {
+    [ctx appendString:@"## 当前已连接的进程\n"];
+    [ctx appendFormat:@"- 进程名: %@\n", procName];
+    [ctx appendFormat:@"- PID: %d\n", pid];
+  } else {
+    [ctx appendString:@"## 当前状态: 未连接进程\n"];
+  }
+
+  if (resultCount > 0) {
+    [ctx appendString:@"\n## 当前搜索结果\n"];
+    [ctx appendFormat:@"- 结果数量: %lu\n", (unsigned long)resultCount];
+  } else {
+    [ctx appendString:@"\n## 搜索结果: 无\n"];
+  }
+
+  return ctx;
+}
+
+#pragma mark - System Prompt
+
 - (NSString *)systemPrompt {
-  return @"你是 VansonMod 内置的 AI 助手，运行在用户的 iOS 设备上。"
-  @"VansonMod 是一款基于 TrollStore 的 iOS 内存编辑与逆向调试工具，支持以下功能：\n\n"
-  @"## 核心功能\n"
-  @"- **内存搜索**：精确搜索、模糊搜索（变大/变小/改变）、分组搜索、范围搜索、附近搜索、签名搜索\n"
-  @"- **内存编辑**：批量修改值、Hex编辑、内存浏览器\n"
-  @"- **指针分析**：自动指针链搜索、指针验证、指针锁定\n"
-  @"- **RVA补丁**：模块偏移补丁、ARM64指令预设\n"
-  @"- **脚本系统**：内置JavaScript运行时，支持自动化操作\n"
-  @"- **应用存档**：Documents/Library备份恢复\n"
-  @"- **进程审计**：对比代码变化\n\n"
-  @"## JS 脚本 API（用户在脚本编辑器里写JS调用）\n"
-  @"```javascript\n"
-  @"vm.search(val, type, start, end)  // 搜索内存，type: I32/I64/F32/F64/U8等\n"
-  @"vm.refine(val, type, mode)  // 过滤结果，mode: eq/gt/lt/chg\n"
-  @"vm.searchFuzzy(type)  // 模糊搜索（值改变了的）\n"
-  @"vm.searchGroup(val, type, start, end)  // 分组搜索\n"
-  @"vm.searchBetween(min, max, type)  // 范围搜索\n"
-  @"vm.nearby(val, type, range)  // 附近搜索\n"
-  @"vm.searchSign(signature, start, end)  // 签名搜索\n"
-  @"vm.getResults(count, skip)  // 获取搜索结果\n"
-  @"vm.getResultsCount()  // 结果数量\n"
-  @"vm.getValue(addr, type)  // 读取地址值\n"
-  @"vm.setValue(addr, val, type)  // 写入地址值\n"
-  @"vm.editAll(val, type, filter)  // 批量修改所有结果\n"
-  @"vm.write(val, type, index)  // 修改第N个结果\n"
-  @"vm.lock(val, type, index)  // 锁定值\n"
-  @"vm.unlock(index)  // 解锁\n"
-  @"vm.lockAll(val, type, filter)  // 批量锁定\n"
-  @"vm.unlockAll()  // 全部解锁\n"
-  @"vm.clear()  // 清除搜索结果\n"
-  @"vm.log(msg)  // 输出到控制台\n"
-  @"vm.toast(msg)  // 弹窗提示\n"
-  @"vm.sleep(seconds)  // 延时\n"
-  @"vm.setBaseAddress(addr)  // 设置基址\n"
-  @"vm.setFloatTolerance(tol)  // 设置浮点容差\n"
-  @"// 指针操作\n"
-  @"vm.resolvePointer(module, baseOffset, offsets, type)\n"
-  @"vm.writePointer(module, baseOffset, offsets, val, type)\n"
-  @"vm.lockPointer(module, baseOffset, offsets, val, type, note)\n"
-  @"// RVA补丁\n"
-  @"vm.patchRVA(module, offset, patchHex)\n"
-  @"vm.restoreRVA(module, offset, originalHex)\n"
-  @"vm.readRVA(module, offset, length)\n"
-  @"```\n\n"
-  @"## 你的职责\n"
-  @"1. 当用户描述想要修改的内容（比如金币、血量、攻击力），帮他们分析应该搜索什么值、用什么类型、怎么过滤\n"
-  @"2. 直接给出可以复制到VansonMod脚本编辑器里运行的JS代码\n"
-  @"3. 解释VansonMod的各种功能和操作步骤\n"
-  @"4. 帮用户分析搜索结果、判断哪个地址最可能是目标\n"
-  @"5. 用中文回答，简洁实用，代码优先";
+  NSString *processCtx = [self currentProcessContext];
+
+  return [NSString stringWithFormat:
+    @"你是 VansonMod 内置的 AI 助手，运行在用户的 iOS 设备上。"
+    @"VansonMod 是一款基于 TrollStore 的 iOS 内存编辑与逆向调试工具。\n\n"
+    @"## 当前运行时上下文\n"
+    @"%@\n\n"
+    @"## 核心功能\n"
+    @"- 内存搜索：精确/模糊/分组/范围/附近/签名搜索\n"
+    @"- 内存编辑：批量修改值、Hex编辑\n"
+    @"- 指针分析：自动指针链搜索、验证、锁定\n"
+    @"- RVA补丁：模块偏移补丁\n"
+    @"- 脚本系统：内置JavaScript运行时\n\n"
+    @"## JS 脚本 API\n"
+    @"```javascript\n"
+    @"vm.search(val, type, start, end)  // type: I32/I64/F32/F64/U8/U16/U32/U64\n"
+    @"vm.refine(val, type, mode)  // mode: eq/gt/lt/chg\n"
+    @"vm.searchFuzzy(type)\n"
+    @"vm.searchGroup(val, type, start, end)\n"
+    @"vm.searchBetween(min, max, type)\n"
+    @"vm.nearby(val, type, range)\n"
+    @"vm.searchSign(signature, start, end)\n"
+    @"vm.getResults(count, skip)  // 获取搜索结果数组\n"
+    @"vm.getResultsCount()\n"
+    @"vm.getValue(addr, type)  // 读取地址的值\n"
+    @"vm.setValue(addr, val, type)  // 写入值\n"
+    @"vm.editAll(val, type, filter)  // 批量修改\n"
+    @"vm.lock(val, type, index)  // 锁定值\n"
+    @"vm.unlock(index) / vm.unlockAll()\n"
+    @"vm.clear()  // 清除结果\n"
+    @"vm.log(msg) / vm.toast(msg) / vm.sleep(sec)\n"
+    @"vm.resolvePointer(module, baseOffset, offsets, type)\n"
+    @"vm.patchRVA(module, offset, patchHex)\n"
+    @"```\n\n"
+    @"## 你的职责\n"
+    @"1. 你已经知道当前连接的进程和搜索结果（见上方上下文），直接基于这些信息回答\n"
+    @"2. 当用户想修改某个值（金币/血量/攻击力），直接给出搜索策略和完整可运行的JS脚本\n"
+    @"3. 如果已有搜索结果，帮用户分析哪个地址最可能是目标，给出缩小范围的建议\n"
+    @"4. 用中文回答，代码可直接复制到VansonMod脚本编辑器运行\n"
+    @"5. 如果用户没连进程，提醒他先在VansonMod里选择目标进程并连接",
+    processCtx];
 }
 
 - (void)sendMessage {
@@ -146,32 +232,34 @@
   if (msg.length == 0) return;
 
   [_messages addObject:@{@"role": @"user", @"content": msg}];
-  [self appendLine:[NSString stringWithFormat:@"你：%@", msg]];
+  [self appendLine:[NSString stringWithFormat:@"\n你：%@", msg]];
   _inputField.text = @"";
   _sendButton.enabled = NO;
 
   VMAIManager *ai = [VMAIManager shared];
   if (![ai isConfigured]) {
-    [self appendLine:@"AI：API Key 未配置"];
+    [self appendLine:@"AI：API Key 未配置，请先在设置里填写"];
     _sendButton.enabled = YES;
     return;
   }
 
-  // Build full message array with system prompt
-  NSMutableArray *fullMessages = [NSMutableArray array];
-  [fullMessages addObject:@{@"role": @"system", @"content": [self systemPrompt]}];
-  [fullMessages addObjectsFromArray:_messages];
-
   [self appendLine:@"AI：思考中..."];
+
+  // Build full messages with system prompt + history
+  NSMutableArray *fullMsgs = [NSMutableArray array];
+  [fullMsgs addObject:@{@"role": @"system", @"content": [self systemPrompt]}];
+  [fullMsgs addObjectsFromArray:_messages];
+
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     NSString *reply = [ai chatSync:msg system:[self systemPrompt]];
     dispatch_async(dispatch_get_main_queue(), ^{
       NSString *t = self->_chatView.text ?: @"";
       NSRange r = [t rangeOfString:@"AI：思考中..." options:NSBackwardsSearch];
       if (r.location != NSNotFound) {
-        self->_chatView.text = [t stringByReplacingCharactersInRange:r withString:[NSString stringWithFormat:@"AI：%@", reply ?: @""]];
+        self->_chatView.text = [t stringByReplacingCharactersInRange:r
+ withString:[NSString stringWithFormat:@"AI：\n%@", reply ?: @""]];
       } else {
-        [self appendLine:[NSString stringWithFormat:@"AI：%@", reply ?: @""]];
+        [self appendLine:[NSString stringWithFormat:@"AI：\n%@", reply ?: @""]];
       }
       [self->_messages addObject:@{@"role": @"assistant", @"content": reply ?: @""}];
       self->_sendButton.enabled = YES;
