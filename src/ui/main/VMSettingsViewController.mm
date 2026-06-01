@@ -275,7 +275,7 @@
   self.aiKeyField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   self.aiKeyField.autocorrectionType = UITextAutocorrectionTypeNo;
 
-  self.aiModelField = [self createTextField:@"MiMo-V2-Flash"];
+  self.aiModelField = [self createTextField:@"mimo-v2.5-pro"];
   self.aiModelField.text = ai.model;
   self.aiModelField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   self.aiModelField.autocorrectionType = UITextAutocorrectionTypeNo;

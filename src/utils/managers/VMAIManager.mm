@@ -143,7 +143,7 @@ didCompleteWithError:(NSError *)error {
     NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
     self.baseURL    = [d objectForKey:kAIBaseURL] ?: @"https://token-plan-sgp.xiaomimimo.com/v1";
     self.apiKey     = [d objectForKey:kAIApiKey]  ?: @"";
-    self.model      = [d objectForKey:kAIModel]   ?: @"MiMo-V2-Flash";
+    self.model      = [d objectForKey:kAIModel]   ?: @"mimo-v2.5-pro";
     self.temperature = [d objectForKey:kAITemp] ? [d doubleForKey:kAITemp] : 0.7;
     self.maxTokens   = [d objectForKey:kAIMaxTokens] ? [d integerForKey:kAIMaxTokens] : 4096;
 }
