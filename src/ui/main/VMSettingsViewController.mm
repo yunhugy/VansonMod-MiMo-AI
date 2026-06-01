@@ -1,4 +1,5 @@
 #import "VMSettingsViewController.h"
+#import "VMAIChatViewController.mm"
 #import "../../core/VMRootViewController.h"
 #import "../../utils/helpers/VMUIHelper.h"
 #import "../../utils/managers/VMUpdateManager.h"
@@ -574,7 +575,7 @@
   if (section == 0)
     return 6; 
   if (section == 1)
-    return 4;   // AI Settings
+    return 5;   // AI Settings
   if (section == 2)
     return 4; 
   return 7;   
@@ -644,6 +645,13 @@
       cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
       cell.detailTextLabel.text = [[VMAIManager shared] isConfigured]
           ? TR(@"Status_Latest") : @"Not configured";
+    } else if (indexPath.row == 4) {
+      cell.textLabel.text = @"AI 聊天";
+      cell.imageView.image = [UIImage systemImageNamed:@"message.fill"];
+      cell.imageView.tintColor = [UIColor systemRedColor];
+      cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+      cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+      cell.detailTextLabel.text = @"MiMo AI Chat";
     }
   }
   
@@ -818,6 +826,23 @@
               [tableView reloadData];
             });
           });
+    } else if (indexPath.row == 4) {
+      // AI 聊天
+      [self.aiBaseURLField resignFirstResponder];
+      [self.aiKeyField resignFirstResponder];
+      [self.aiModelField resignFirstResponder];
+      [self saveAIConfig];
+
+      VMAIManager *ai = [VMAIManager shared];
+      if (![ai isConfigured]) {
+        [self showToast:@"请先填写 API Key"];
+        return;
+      }
+      VMAIChatViewController *chatVC = [[VMAIChatViewController alloc] init];
+      UINavigationController *nav =
+          [[UINavigationController alloc] initWithRootViewController:chatVC];
+      nav.modalPresentationStyle = UIModalPresentationPageSheet;
+      [self presentViewController:nav animated:YES completion:nil];
     }
   } else if (indexPath.section == 2) {
     
