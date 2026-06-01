@@ -41,30 +41,31 @@
   [super viewDidLoad];
   self.view.backgroundColor =
       [UIColor systemGroupedBackgroundColor]; 
-  [self setupUI];
-  NSLog(@"[VMScriptVC] viewDidLoad - setupUI done, about to add FAB"); 
+  [self setupUI]; 
 
-  // Floating AI button
-  UIButton *fabAI = [UIButton buttonWithType:UIButtonTypeSystem];
-  [fabAI setTitle:@"AI" forState:UIControlStateNormal];
-  [fabAI.titleLabel setFont:[UIFont boldSystemFontOfSize:16]];
-  [fabAI setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-  [fabAI setBackgroundColor:[UIColor systemPurpleColor]];
-  fabAI.layer.cornerRadius = 25;
-  fabAI.layer.shadowColor = [UIColor blackColor].CGColor;
-  fabAI.layer.shadowOffset = CGSizeMake(0, 2);
-  fabAI.layer.shadowOpacity = 0.4;
-  fabAI.layer.shadowRadius = 4;
-  fabAI.translatesAutoresizingMaskIntoConstraints = NO;
-  [fabAI addTarget:self action:@selector(onAIAction) forControlEvents:UIControlEventTouchUpInside];
-  [self.view addSubview:fabAI];
-  UILayoutGuide *safeG = self.view.safeAreaLayoutGuide;
-  [NSLayoutConstraint activateConstraints:@[
-    [fabAI.trailingAnchor constraintEqualToAnchor:safeG.trailingAnchor constant:-16],
-    [fabAI.bottomAnchor constraintEqualToAnchor:safeG.bottomAnchor constant:-16],
-    [fabAI.widthAnchor constraintEqualToConstant:50],
-    [fabAI.heightAnchor constraintEqualToConstant:50],
-  ]];
+  // Floating AI button - frame based for reliability
+  dispatch_async(dispatch_get_main_queue(), ^{
+    UIButton *fabAI = [UIButton buttonWithType:UIButtonTypeSystem];
+    [fabAI setTitle:@"AI" forState:UIControlStateNormal];
+    [fabAI.titleLabel setFont:[UIFont boldSystemFontOfSize:18]];
+    [fabAI setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [fabAI setBackgroundColor:[UIColor systemPurpleColor]];
+    fabAI.frame = CGRectMake(self.view.bounds.size.width - 66,
+                             self.view.bounds.size.height - 120,
+                             50, 50);
+    fabAI.layer.cornerRadius = 25;
+    fabAI.layer.shadowColor = [UIColor blackColor].CGColor;
+    fabAI.layer.shadowOffset = CGSizeMake(0, 2);
+    fabAI.layer.shadowOpacity = 0.4;
+    fabAI.layer.shadowRadius = 4;
+    fabAI.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
+    [fabAI addTarget:self action:@selector(onAIAction) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:fabAI];
+    [self.view bringSubviewToFront:fabAI];
+    NSLog(@"[VMScriptVC] FAB added at (%.0f, %.0f) size=(%.0f, %.0f)",
+          fabAI.frame.origin.x, fabAI.frame.origin.y,
+          fabAI.frame.size.width, fabAI.frame.size.height);
+  });
 
   [self setupNavigationTitle];
 
