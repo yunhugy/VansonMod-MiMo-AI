@@ -41,7 +41,8 @@
   [super viewDidLoad];
   self.view.backgroundColor =
       [UIColor systemGroupedBackgroundColor]; 
-  [self setupUI]; 
+  [self setupUI];
+  NSLog(@"[VMScriptVC] viewDidLoad - setupUI done, about to add FAB"); 
 
   // Floating AI button
   UIButton *fabAI = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -309,7 +310,7 @@
   self.consoleView.layer.cornerRadius = 8;
   self.consoleView.translatesAutoresizingMaskIntoConstraints = NO;
   self.consoleView.text =
-      [NSString stringWithFormat:@"> %@ [AI Edition 03cc680]", TR(@"Script_Console_Ready")];
+      [NSString stringWithFormat:@"> %@ [v3.0.0-MiMo-AI ✅]", TR(@"Script_Console_Ready")];
   [self.view addSubview:self.consoleView];
 
   [NSLayoutConstraint activateConstraints:@[

@@ -553,7 +553,7 @@
 
   NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
   NSString *ver = infoDict[@"CFBundleShortVersionString"];
-  lbl.text = [NSString stringWithFormat:TR(@"Set_Footer_Info"), ver];
+  lbl.text = [NSString stringWithFormat:@"%@\n🤖 MiMo AI Edition", [NSString stringWithFormat:TR(@"Set_Footer_Info"), ver]];
 
   lbl.autoresizingMask =
       UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
